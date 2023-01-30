@@ -11,11 +11,11 @@ import logging
 
 from social_core.utils import cache
 
-from open_id_connect import OpenIdConnectAuth
+from .open_id_connect import OpenIdConnectAuth
 
 logger = logging.getLogger('idm')
 
-class CASOIDCAuth(OpenIdConnectAuth):
+class CASOpenIdConnectAuth(OpenIdConnectAuth):
     """
     Open ID Connect backends for use with Apereo CAS.
     Currently only the code response type is supported.
