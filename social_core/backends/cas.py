@@ -13,7 +13,7 @@ from social_core.utils import cache
 
 from .open_id_connect import OpenIdConnectAuth
 
-logger = logging.getLogger('idm')
+logger = logging.getLogger('bitu')
 
 class CASOpenIdConnectAuth(OpenIdConnectAuth):
     """
