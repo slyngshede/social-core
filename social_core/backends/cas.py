@@ -6,7 +6,14 @@ Backend for authenticating with Apereo CAS using OIDC. This backend handles
 the minor implementation differences between the Apereo CAS OIDC server
 implementation and the standard OIDC implementation in Python Social Auth.
 """
+
+import logging
+
+from social_core.utils import cache
+
 from open_id_connect import OpenIdConnectAuth
+
+logger = logging.getLogger('idm')
 
 class CASOIDCAuth(OpenIdConnectAuth):
     """
@@ -43,16 +50,28 @@ class CASOIDCAuth(OpenIdConnectAuth):
     JWKS_URI = ""
     TOKEN_ENDPOINT_AUTH_METHOD = ""
 
+    def oidc_endpoint(self):
+        logger.info(f'settings: {self.setting}')
+        return self.setting("OIDC_ENDPOINT", self.OIDC_ENDPOINT)
+
+    @cache(ttl=86400)
+    def oidc_config(self):
+        return self.get_json(self.oidc_endpoint() + "/.well-known/openid-configuration")
+
     def user_data(self, access_token, *args, **kwargs):
         data = self.get_json(
             self.userinfo_url(), headers={"Authorization": f"Bearer {access_token}"}
         )
+        logger.info(f'user data: {data}')
 
         return data.get('attributes', {})
 
     def get_user_details(self, response):
         username_key = self.setting("USERNAME_KEY", self.USERNAME_KEY)
         attr = response.get('attributes', {})
+
+        logger.info(f'attributes: {attr}')
+
         return {
             "username": attr.get(username_key),
             "email": attr.get("email"),
