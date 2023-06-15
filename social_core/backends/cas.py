@@ -48,14 +48,20 @@ class CASOpenIdConnectAuth(OpenIdConnectAuth):
         logger.debug(f"backend: CAS, user_data: {data}")
         return data.get("attributes", {})
 
+    def get_attr_as_str(attr, key):
+        value = attr.get(key)
+        if isinstance(value, bytes):
+            return value.decode()
+        return value
+
     def get_user_details(self, response):
         username_key = self.setting("USERNAME_KEY", self.USERNAME_KEY)
         logger.debug(f"backend: CAS, username_key: {username_key}")
         attributes = self.user_data(response.get("access_token"))
         return {
-            "username": attributes.get(username_key),
-            "email": attributes.get("email"),
-            "fullname": attributes.get("name"),
-            "first_name": attributes.get("given_name"),
-            "last_name": attributes.get("family_name"),
+            "username": self.get_attr_as_str(username_key),
+            "email": self.get_attr_as_str("email"),
+            "fullname": self.get_attr_as_str("name"),
+            "first_name": self.get_attr_as_str("given_name"),
+            "last_name": self.get_attr_as_str("family_name"),
         }
